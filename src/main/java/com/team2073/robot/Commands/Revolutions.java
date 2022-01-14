@@ -4,14 +4,13 @@ import com.team2073.common.command.AbstractLoggingCommand;
 import com.team2073.robot.ApplicationContext;
 import com.team2073.robot.Subsystems.SimpleSubsystem;
 
-public class Cruise extends AbstractLoggingCommand {
+public class Revolutions extends AbstractLoggingCommand {
     ApplicationContext appCTX = ApplicationContext.getInstance();
     SimpleSubsystem simpleSubsystem = appCTX.getSimpleSubsystem();
 
     @Override
     protected void initializeDelegate() {
-        simpleSubsystem.setCruiseOutput();
-        simpleSubsystem.setCurrentState(SimpleSubsystem.SimpleSubsystemState.Cruise);
+        simpleSubsystem.setCurrentState(SimpleSubsystem.SimpleSubsystemState.Revolutions);
     }
 
     @Override

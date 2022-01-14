@@ -2,21 +2,21 @@ package com.team2073.robot.Commands;
 
 import com.team2073.common.command.AbstractLoggingCommand;
 import com.team2073.robot.ApplicationContext;
+import com.team2073.robot.Subsystems.RobotTest;
 import com.team2073.robot.Subsystems.SimpleSubsystem;
 
-public class Cruise extends AbstractLoggingCommand {
+public class TestCommand extends AbstractLoggingCommand {
     ApplicationContext appCTX = ApplicationContext.getInstance();
-    SimpleSubsystem simpleSubsystem = appCTX.getSimpleSubsystem();
+    RobotTest robotTest = appCTX.getRobotTest();
 
     @Override
     protected void initializeDelegate() {
-        simpleSubsystem.setCruiseOutput();
-        simpleSubsystem.setCurrentState(SimpleSubsystem.SimpleSubsystemState.Cruise);
+        robotTest.setCurrentState(RobotTest.RobotTestState.RobotTest);
     }
 
     @Override
     protected void endDelegate() {
-        simpleSubsystem.setCurrentState(SimpleSubsystem.SimpleSubsystemState.AXIS);
+        robotTest.setCurrentState(RobotTest.RobotTestState.STOP);
     }
 
     @Override

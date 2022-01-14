@@ -1,13 +1,10 @@
 package com.team2073.robot.Subsystems;
 
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.team2073.common.periodic.AsyncPeriodicRunnable;
 import com.team2073.robot.ApplicationContext;
 import edu.wpi.first.wpilibj.Joystick;
-
-import java.awt.event.ActionListener;
-import java.sql.SQLOutput;
-import java.util.TimerTask;
 
 import com.team2073.common.util.*;
 
@@ -16,16 +13,17 @@ public class SimpleSubsystem implements AsyncPeriodicRunnable {
     private final ApplicationContext appCTX = ApplicationContext.getInstance();
     private final Joystick controller =  appCTX.getController();
     private final CANSparkMax motor = appCTX.getMotor();
-
     private SimpleSubsystemState currentState = SimpleSubsystemState.AXIS;
 
-    private double output = 0;
+    public double CruiseOutput = 0;
+    public double output = 0;
     Timer timer = new Timer();
     public SimpleSubsystem() {
         autoRegisterWithPeriodicRunner();
     }
     @Override
     public void onPeriodicAsync() {
+
         output = getAxisOutput();
         switch (currentState) {
             case AXIS:
@@ -54,7 +52,7 @@ public class SimpleSubsystem implements AsyncPeriodicRunnable {
                 output = 0;
                 break;
             case PULSE:
-                System.out.println("Estoy goose");
+                System.out.println("Pulse is on");
                 if (controller.getRawButtonPressed(5)) {
                     timer.start();
                 }
@@ -67,30 +65,49 @@ public class SimpleSubsystem implements AsyncPeriodicRunnable {
                 }
                 break;
             case Cruise:
-                double CruiseOutput = output;
-                boolean cruising = true;
-                System.out.println("monkey nuts");
-
-                   while (cruising){
-                       motor.set(CruiseOutput);
-                       if (controller.getRawButton(4)){
-                           cruising = false;
-                           break;
-                       } else if (getAxisOutput() > CruiseOutput){
-                           break;
-                       }
-                   cruising = false;
-                       motor.set(output);
-                   }
-
-        }
-        if (output > 0.8) {
-            output = 0.8;
-        } else if (output < 0.2) {
+                System.out.println("Cruise is On");
+                output = CruiseOutput;
+                System.out.println(CruiseOutput);
+                double Override = Math.abs(getAxisOutput());
+                if (Override > CruiseOutput){
+                    output = Override;
+                }
+                break;
+            case Revolutions:
+                System.out.println("Revolutions is on");
+                double EwwwBusinessTeam = motor.getEncoder().getPosition();
+                output = 0.5;
+                if (EwwwBusinessTeam >= 3000 && 3500>= EwwwBusinessTeam){
+                    output = 0;
+                    System.out.println("ur mom");
+                }
+                System.out.println(EwwwBusinessTeam + "revs");
+                break;
+            case Reset:
+                System.out.println("resetting");
+                System.out.println(motor.getEncoder().getPosition() + "position");
+                if (motor.getEncoder().getPosition() > 0) {
+                    output = -0.3;
+                    if (Math.abs(getAxisOutput()) > 0.1){
+                        output = getAxisOutput();
+                        System.out.println("user set speed");
+                    }
+                    if (motor.getEncoder().getPosition() <= 0 && -10 <= motor.getEncoder().getPosition()){
+                        output = 0;
+                        System.out.println("ethan is dumb");
+                    }
+                    break;
+                }
+            }
+        if (0.2 > Math.abs(output)) {
             output = 0;
+        }else if (output < -0.8) {
+            output = -0.8;
+        }else if (output > 0.8) {
+            output = 0.8;
         }
         System.out.println(output);
-        motor.set(output);
+        //motor.set(output);
     }
 
     public void setCurrentState(SimpleSubsystemState currentState) {
@@ -101,11 +118,17 @@ public class SimpleSubsystem implements AsyncPeriodicRunnable {
         return -controller.getRawAxis(1);
     }
 
+    public void setCruiseOutput() {
+        CruiseOutput = output;
+    }
+
     public enum SimpleSubsystemState {
         AXIS,
         HALF_POWER,
         STOP,
         Cruise,
+        Revolutions,
+        Reset,
         PULSE
 
     }
